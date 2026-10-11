@@ -21,6 +21,7 @@ declare namespace dev.aglaea.mobile {
     static updatePlayback(playing: boolean): void;
     static updateMedia(title: string, position: number, duration: number, speed: number): void;
     static retryFocus(): void;
+    static requestNotificationPermission(activity: android.app.Activity): void;
     static disconnect(context: android.content.Context): void;
   }
 }

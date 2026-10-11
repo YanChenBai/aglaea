@@ -41,6 +41,8 @@ Aglaea Android 使用 NativeScript Vue 构建原生房间界面，在 WebView �
 
 状态点用灰色表示未加入、金色表示连接中或等待播放器、绿色表示就绪、红色表示断开。主界面只展示基础状态；日志模态框保留最近 200 条带时间的记录。
 
+Android 13 及以上在首次加入房间时申请通知权限，用于系统通知展示。拒绝授权不会阻止加入；之后可在系统的应用通知设置中开启。
+
 ## 架构
 
 ```text
@@ -111,7 +113,7 @@ powershell -ExecutionPolicy Bypass -File apps/mobile/scripts/generate-android-ic
 vp run build:mobile --clean
 ```
 
-通知栏小图标使用 `App_Resources/Android/src/main/res/drawable/ic_notification.xml` 的单色 A；媒体卡片图片使用应用头像。
+通知栏小图标使用 `App_Resources/Android/src/main/res/drawable/ic_notification.xml` 的单色 A；媒体卡片图片使用不带自适应图标安全留白的应用头像。
 
 ## 验证
 

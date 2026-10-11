@@ -289,6 +289,9 @@ function join(value: RoomForm): void {
     notify,
   );
   joined.value = true;
+  dev.aglaea.mobile.PlaybackService.requestNotificationPermission(
+    Application.android.foregroundActivity,
+  );
 
   if (webview) {
     dev.aglaea.mobile.PlaybackService.connect(Application.android.context, webview.android);
@@ -636,31 +639,36 @@ onUnmounted(() => {
           <GridLayout columns="88, 32, 44, 32, *, *, *" height="44">
             <GridLayout
               col="0"
-              :class="['room-action', joined ? 'room-action-leave' : 'room-action-join']"
+              height="44"
               accessibilityRole="button"
               :accessibilityLabel="joined ? '退出房间' : '加入房间'"
               @tap="joined ? leave() : openJoinRoom()"
             >
               <GridLayout
-                columns="auto, auto"
-                horizontalAlignment="center"
+                :class="['room-action', joined ? 'room-action-leave' : 'room-action-join']"
                 verticalAlignment="center"
               >
-                <Image
-                  col="0"
-                  :src="joined ? 'res://room_leave' : 'res://room_join'"
-                  width="16"
-                  height="16"
-                  marginRight="4"
+                <GridLayout
+                  columns="auto, auto"
+                  horizontalAlignment="center"
                   verticalAlignment="center"
-                  stretch="aspectFit"
-                />
-                <Label
-                  col="1"
-                  :text="joined ? '退出房间' : '加入房间'"
-                  textWrap="false"
-                  verticalAlignment="center"
-                />
+                >
+                  <Image
+                    col="0"
+                    :src="joined ? 'res://room_leave' : 'res://room_join'"
+                    width="16"
+                    height="16"
+                    marginRight="4"
+                    verticalAlignment="center"
+                    stretch="aspectFit"
+                  />
+                  <Label
+                    col="1"
+                    :text="joined ? '退出房间' : '加入房间'"
+                    textWrap="false"
+                    verticalAlignment="center"
+                  />
+                </GridLayout>
               </GridLayout>
             </GridLayout>
             <IconButton

@@ -4,6 +4,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <application android:name="com.tns.NativeScriptApplication" android:allowBackup="false" tools:replace="android:allowBackup" android:label="Aglaea" android:icon="@mipmap/ic_launcher" android:theme="@style/AppTheme" android:usesCleartextTraffic="true" android:hardwareAccelerated="true">
         <activity android:name="com.tns.NativeScriptActivity" android:exported="true" android:launchMode="singleTask" android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|locale|uiMode">
             <intent-filter>

@@ -5,6 +5,9 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.app.Activity;
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -16,6 +19,7 @@ import android.media.MediaMetadata;
 import android.media.session.MediaSession;
 import android.media.session.PlaybackState;
 import android.os.IBinder;
+import android.os.Build;
 import android.os.PowerManager;
 import java.lang.ref.WeakReference;
 
@@ -24,6 +28,7 @@ public class PlaybackService extends Service {
     private static PlaybackService instance;
     private static WeakReference<PlaybackWebView> webview = new WeakReference<>(null);
     private static boolean playing;
+    private static boolean notificationPermissionRequested;
     private AudioManager audio;
     private AudioFocusRequest focus;
     private PowerManager.WakeLock wakeLock;
@@ -41,6 +46,15 @@ public class PlaybackService extends Service {
     public static void connect(Context context, PlaybackWebView view) {
         webview = new WeakReference<>(view);
         context.startForegroundService(new Intent(context, PlaybackService.class));
+    }
+
+    public static void requestNotificationPermission(Activity activity) {
+        if (Build.VERSION.SDK_INT < 33 || activity == null
+            || notificationPermissionRequested
+            || activity.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)
+                == PackageManager.PERMISSION_GRANTED) return;
+        notificationPermissionRequested = true;
+        activity.requestPermissions(new String[] { Manifest.permission.POST_NOTIFICATIONS }, 4201);
     }
 
     public static void updatePlayback(boolean wanted) {
@@ -87,8 +101,10 @@ public class PlaybackService extends Service {
         notifications.createNotificationChannel(new NotificationChannel(
             CHANNEL, "房间后台播放", NotificationManager.IMPORTANCE_LOW));
         mediaSession = new MediaSession(this, "aglaea_playback");
+        mediaSession.setFlags(MediaSession.FLAG_HANDLES_MEDIA_BUTTONS
+            | MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS);
         artwork = BitmapFactory.decodeResource(getResources(),
-            getResources().getIdentifier("ic_launcher_foreground", "mipmap", getPackageName()));
+            getResources().getIdentifier("media_artwork", "drawable", getPackageName()));
         mediaSession.setCallback(new MediaSession.Callback() {
             @Override public void onPlay() { setLocallyPaused(false); }
             @Override public void onPause() { setLocallyPaused(true); }
@@ -97,6 +113,8 @@ public class PlaybackService extends Service {
             .putString(MediaMetadata.METADATA_KEY_TITLE, title)
             .putString(MediaMetadata.METADATA_KEY_ARTIST, "Aglaea · 房间同步")
             .putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, artwork).build());
+        // 首次发布通知前补齐会话状态，避免系统先接收到空的媒体会话。
+        publishState();
         mediaSession.setActive(true);
         startForeground(1, notification());
 

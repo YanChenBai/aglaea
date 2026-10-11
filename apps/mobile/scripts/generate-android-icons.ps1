@@ -38,6 +38,10 @@ try {
     )) {
         $directory = Join-Path $resourceRoot "mipmap-$($density.Name)"
         Write-Icon (Join-Path $directory 'ic_launcher.png') $density.Legacy $density.Legacy
+        # 媒体卡片直接使用头像，不带自适应启动图标的安全留白。
+        $mediaDirectory = Join-Path $resourceRoot "drawable-$($density.Name)"
+        New-Item -ItemType Directory -Force -Path $mediaDirectory | Out-Null
+        Copy-Item -LiteralPath (Join-Path $directory 'ic_launcher.png') -Destination (Join-Path $mediaDirectory 'media_artwork.png')
         # 自适应图标的画布为 108dp，头像居中放入 72dp 可见区域。
         Write-Icon (Join-Path $directory 'ic_launcher_foreground.png') $density.Canvas $density.Artwork
     }
