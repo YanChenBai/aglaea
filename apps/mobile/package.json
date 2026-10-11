@@ -1,0 +1,35 @@
+{
+  "name": "@aglaea/mobile",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "src/app.ts",
+  "scripts": {
+    "dev": "bun scripts/nativescript.ts run android --no-hmr",
+    "build:android": "bun scripts/nativescript.ts build android --env.production",
+    "doctor": "bun scripts/nativescript.ts doctor android",
+    "typecheck": "vp exec vue-tsc --noEmit",
+    "test": "vp test"
+  },
+  "dependencies": {
+    "@aglaea/shared": "workspace:*",
+    "@nativescript-community/ui-webview": "1.6.2",
+    "@nativescript/core": "~9.1.2",
+    "@valor/nativescript-websockets": "2.0.3",
+    "nativescript-vue": "3.1.2"
+  },
+  "devDependencies": {
+    "@nativescript/android": "9.1.1",
+    "@nativescript/types": "~9.1.1",
+    "@nativescript/vite": "8.0.18",
+    "@types/node": "^24.0.0",
+    "@vitejs/plugin-vue": "^6.0.9",
+    "@vitejs/plugin-vue-jsx": "^5.1.6",
+    "@vue/compiler-sfc": "^3.5.43",
+    "nativescript": "9.1.2",
+    "typescript": "~6.0.0",
+    "vite": "^8.3.2",
+    "vite-plus": "catalog:",
+    "vue-tsc": "catalog:"
+  }
+}

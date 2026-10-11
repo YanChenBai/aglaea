@@ -1,0 +1,175 @@
+/* 对齐 @aglaea/ui 的墨黑、暖金、纸白与圆角尺寸。 */
+Page {
+  background-color: #0c0c0c;
+  color: #f3f0e8;
+  font-size: 14;
+}
+.field-label {
+  color: #d8e6e2;
+  font-size: 12;
+  margin-bottom: 4;
+}
+TextField {
+  color: #f3f0e8;
+  placeholder-color: #8fa3a7;
+  background-color: #171717;
+  border-color: #3a3a3a;
+  border-width: 1;
+  border-radius: 8;
+  height: 44;
+  padding: 0 12;
+  margin-bottom: 10;
+  font-size: 14;
+}
+Button {
+  background-color: #2b2418;
+  color: #d8b46a;
+  border-color: #a87e3d;
+  border-width: 1;
+  border-radius: 8;
+  height: 40;
+  padding: 0 12;
+  margin: 0;
+  font-size: 13;
+}
+Button:highlighted {
+  background-color: #403421;
+}
+.button-primary {
+  background-color: #d8b46a;
+  color: #0c0c0c;
+  font-weight: bold;
+  margin-top: 4;
+}
+.button-primary:highlighted {
+  background-color: #f0dcae;
+}
+.button-ghost {
+  background-color: transparent;
+  border-color: #3a3a3a;
+  color: #d8e6e2;
+}
+.caption {
+  color: #8fa3a7;
+  font-size: 12;
+}
+
+.error-message {
+  color: #e07a5f;
+  font-size: 12;
+  margin-bottom: 8;
+}
+
+.zoom-button {
+  width: 32;
+  height: 32;
+  padding: 0;
+  border-color: #493b25;
+  font-size: 18;
+}
+.zoom-value {
+  color: #d8b46a;
+  font-size: 12;
+  width: 44;
+  text-align: center;
+}
+
+.player-overlay {
+  margin: 48 16 0 16;
+  max-width: 320;
+}
+.player-capsule {
+  height: 40;
+  background-color: rgba(12, 12, 12, 0.86);
+  border-color: rgba(216, 180, 106, 0.35);
+  border-width: 1;
+  border-radius: 24;
+  padding: 2 6 2 12;
+}
+.capsule-status {
+  color: #d8b46a;
+  font-size: 11;
+  margin-right: 8;
+}
+.capsule-sync {
+  width: 36;
+  height: 36;
+  border-radius: 18;
+}
+.player-notice {
+  max-width: 320;
+  background-color: rgba(0, 0, 0, 0.65);
+  color: #f3f0e8;
+  border-color: rgba(180, 180, 180, 0.18);
+  border-width: 1;
+  border-radius: 12;
+  padding: 10 14;
+  margin-top: 8;
+  font-size: 13;
+}
+.notice-error {
+  border-color: #e07a5f;
+}
+.notice-warning {
+  border-color: #d8b46a;
+}
+
+.player-surface {
+  background-color: #0c0c0c;
+}
+.mobile-controls {
+  padding: 0 12 12 12;
+}
+.mobile-status {
+  padding: 12 12 0 12;
+  height: 32;
+}
+.status-dot {
+  width: 7;
+  height: 7;
+  border-radius: 4;
+  margin-right: 8;
+}
+.mobile-controls Button {
+  padding: 0 8;
+}
+.mobile-controls .zoom-button {
+  padding: 0;
+}
+.mobile-controls .button-primary {
+  margin-top: 0;
+}
+.room-action {
+  height: 40;
+  border-radius: 8;
+  font-size: 12;
+}
+.room-action-join {
+  background-color: #d8b46a;
+  color: #0c0c0c;
+  font-weight: bold;
+}
+.room-action-leave {
+  background-color: transparent;
+  border-width: 0;
+  color: #8fa3a7;
+}
+.modal-card {
+  background-color: #171717;
+  color: #f3f0e8;
+  border-color: #493b25;
+  border-width: 1;
+  border-radius: 16;
+  padding: 20;
+}
+.modal-title {
+  color: #d8b46a;
+  font-size: 20;
+  font-weight: bold;
+  margin-bottom: 8;
+}
+.log-content {
+  color: #d8e6e2;
+  font-size: 12;
+  font-family: monospace;
+}

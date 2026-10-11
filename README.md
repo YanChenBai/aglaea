@@ -21,11 +21,12 @@
 
 ## 这是什么
 
-和异地朋友一起看 B 站时，真正麻烦的不是传链接，而是**上面那条进度条**：谁暂停了、谁拖到了哪、这集换没换，全靠口头对齐。Aglaea 把这件事做成三个部分：
+和异地朋友一起看 B 站时，真正麻烦的不是传链接，而是**上面那条进度条**：谁暂停了、谁拖到了哪、这集换没换，全靠口头对齐。Aglaea 把这件事做成几个部分：
 
 - **浏览器插件**在 B 站视频页读取 `<video>` 与播放器实例，把进度、暂停、倍速、切集等信息持续上报。
 - **同步服务**用内存保存房间、成员与播放快照，并广播控制事件。
 - **手机遥控页**通过房间遥控令牌加入房间，负责播控，不参与播放本身。
+- **Android 手机端**通过六位房间码作为成员加入，在 WebView 中播放 B 站视频，跟随房主进度。开发与使用说明见 [手机端文档](./apps/mobile/README.md)。
 
 切集、暂停、播放、网页全屏等动作只在房主端真正执行，其他成员按上报的状态做漂移校准，房间因此始终只有一个「节拍」。
 
@@ -35,6 +36,7 @@
 - **时钟对齐**：客户端通过心跳估算与服务端的时钟偏移，用服务器时间投影播放位置，避免各自按本地时间跑偏；`packages/shared` 提供按漂移容差判断是否需要跳转的 `decideSync`。
 - **三档角色**：`owner` 控制房间进度，`member` 跟随房主，`controller` 通过绑定用户的遥控令牌操作对应播放器。
 - **手机遥控**：房主和成员都可生成长期遥控链接，页面显示用户名称与身份。成员可手动对齐房主进度，并调整自己播放器的音量和网页全屏；房主还能控制播放、进度与切集。同一房间内每个用户复用自己的遥控令牌，点击「手机遥控」直接复制链接。链接在房间存续期间有效，切集与短暂断线不会使链接失效。
+- **Android 播放**：NativeScript Vue 提供原生房间界面，支持桌面播放页、默认 50% 缩放、沉浸式全屏、成员与日志模态框，以及通知栏媒体卡片和本机播放/暂停。当前仅支持 ARM64 成员端，后台与锁屏持续播放仍需进一步真机验证。
 - **跳转同步**：房主调整播放进度时，通过播放器事件立即同步到成员。
 - **自动回收**：房间按 TTL 清理（默认 12 小时），从未绑定成功的空房间只保留 2 秒宽限。
 - **在线状态**：各端每 15 秒发送心跳，服务端每 15 秒检查连接，90 秒没有收到消息便移除成员并广播最新列表。网页关闭时通过 `leave` 和 `fetch keepalive` 主动退出，关闭插件绑定的播放标签页也会退出房间；客户端长时间收不到心跳回应时会自动重连。
@@ -42,7 +44,7 @@
 ## 架构
 
 ```text
-浏览器插件 (WXT + Vue Vapor)                网页 / 手机遥控 (Vue Vapor)
+浏览器插件 (WXT + Vue Vapor)                网页 / 手机遥控 / Android 播放端
         │ WebSocket /ws                             │ WebSocket /ws
         └──────────────┬──────────────────────────────┘
                        ▼
@@ -60,6 +62,7 @@ apps/
   website/     官网与介绍页（Vue Vapor）：功能、工作原理、使用流程、自部署与 `/design` 设计规范
   web/         房间大厅与手机遥控页（Vue Vapor），品牌图见 public/brand/
   server/      Bun + Elysia + WebSocket 的内存房间服务
+  mobile/      NativeScript Vue Android 播放端，WebView 跟随房间同步
 packages/
   client/      Eden Treaty 类型化客户端，提供响应式 Vue 入口
   shared/      Zod 协议、同步计算、房间号与令牌工具
@@ -79,7 +82,7 @@ vp install
 vp run @aglaea/shared#build
 vp run @aglaea/client#build
 
-# 并行启动所有 workspace 的 dev（服务端 / 官网 / 网页 / 插件）
+# 并行启动所有 workspace 的 dev（包含 Android 手机端，需要原生构建环境）
 vp run dev
 ```
 
@@ -90,6 +93,10 @@ vp run @aglaea/server#dev
 vp run @aglaea/website#dev
 vp run @aglaea/web#dev
 vp run @aglaea/extension#dev
+
+# Android 手机端：先检查原生构建环境，再连接设备开发
+vp run doctor:mobile
+vp run dev:mobile
 ```
 
 默认地址：
@@ -111,6 +118,8 @@ vp run @aglaea/extension#dev
 2. 打开插件弹窗，填入服务端地址与显示名称；需要主持时**创建房间**，需要在别人的房间时输入房间号**加入**。
 3. 在弹窗的**播放页面**列表中选择 B 站 `/video/…` 或 `/bangumi/play/…` 标签页，选中即绑定，当前正在看的页面会以「当前页」标记。刷新后保留绑定，只有此标签页参与同步和遥控。成员加入房间后会自动打开并绑定房主视频；房主尚未上传视频时会等待视频信息到达再打开，也可点击**打开视频**手动打开。
 4. 房主或成员点击**手机遥控**直接复制链接，在手机上打开即可遥控绑定的播放器，链接在房间存续期间有效。
+
+手机直接观看时，安装 Android 应用并填写手机可访问的服务端地址、昵称和房间码，应用会打开房主视频并跟随播放。手机遥控页仍通过遥控链接控制其他设备；详细流程见 [手机端文档](./apps/mobile/README.md#使用流程)。
 
 ## 协议
 
@@ -136,11 +145,11 @@ WebSocket 消息（服务端 → 客户端）：`hello`、`snapshot`、`sync`、
 ```bash
 vp check        # 格式化 + lint + 类型检查
 vp run typecheck # TypeScript 6 + Vue 模板类型检查
-vp run -r test  # packages/shared 与 apps/server 的单元测试
+vp run -r test  # 工作区单元测试
 vp run build    # 按依赖顺序构建全部包和应用
 ```
 
-`packages/shared` 覆盖同步计算与房间号工具，`apps/server` 覆盖房间生命周期、令牌校验与角色权限。
+`packages/shared` 覆盖同步计算与房间号工具，`apps/server` 覆盖房间生命周期、令牌校验与角色权限，`apps/mobile` 覆盖房间连接和网页播放器跟随行为。
 
 完整构建使用 `vp run build`（根目录的构建脚本）。它会先构建共享包，再构建依赖它的应用，产物如下：
 
@@ -151,6 +160,14 @@ vp run build    # 按依赖顺序构建全部包和应用
 | 同步服务端       | `apps/server/dist`                  |
 | 网页大厅与遥控端 | `apps/web/dist`                     |
 | 官网             | `apps/website/dist`                 |
+
+Android APK 单独构建，不包含在上述 Web 构建中：
+
+```powershell
+vp run build:mobile --clean
+```
+
+产物位于 `apps/mobile/platforms/android/app/build/outputs/apk/debug/app-debug.apk`，仅包含 `arm64-v8a`，最低支持 Android 8.0。SDK、图标资源和真机验证说明见 [手机端文档](./apps/mobile/README.md#开发)。
 
 ## 部署
 

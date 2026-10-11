@@ -22,6 +22,9 @@ dist-ssr
 .vscode/*
 !.vscode/settings.json
 !.vscode/extensions.json
+apps/mobile/platforms/
+apps/mobile/hooks/
+apps/mobile/.ns-vite-build/
 .idea
 .DS_Store
 *.suo
