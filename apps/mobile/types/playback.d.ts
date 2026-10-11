@@ -19,6 +19,7 @@ declare namespace dev.aglaea.mobile {
   class PlaybackService extends android.app.Service {
     static connect(context: android.content.Context, view: android.webkit.WebView): void;
     static updatePlayback(playing: boolean): void;
+    static updateMedia(title: string, position: number, duration: number, speed: number): void;
     static retryFocus(): void;
     static disconnect(context: android.content.Context): void;
   }

@@ -99,7 +99,9 @@ test('serialized bridge waits for metadata, follows replacement players, and dis
       emit: vi.fn(),
     },
     aglaeaDispose: undefined as (() => void) | undefined,
-    aglaeaAudioFocus: undefined as ((allowed: boolean) => void) | undefined,
+    aglaeaAudioFocus: undefined as
+      | ((allowed: boolean, locallyPaused?: boolean) => void)
+      | undefined,
   };
 
   runInNewContext(playerScript(), {
@@ -147,6 +149,21 @@ test('serialized bridge waits for metadata, follows replacement players, and dis
   expect(selected.pause).toHaveBeenCalledOnce();
   scope.aglaeaAudioFocus?.(false);
   expect(selected.pause.mock.calls.length).toBeGreaterThan(1);
+  scope.aglaeaAudioFocus?.(false, true);
+  receive({
+    position: 40,
+    paused: false,
+    playbackRate: 1,
+    sentAt: 10_000,
+    tolerance: 1.25,
+    force: false,
+  });
+  await new Promise(resolve => setImmediate(resolve));
+  tick();
+  await new Promise(resolve => setImmediate(resolve));
+  expect(scope.nsWebViewBridge.emit).toHaveBeenCalledWith('aglaeaStatus', {
+    message: '已暂停本机，可从媒体卡片继续跟随',
+  });
   scope.aglaeaDispose?.();
   expect(clear).toHaveBeenCalledWith(1);
 });

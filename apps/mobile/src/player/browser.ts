@@ -12,7 +12,7 @@ export function installPlayer(): void {
 
   const scope = window as unknown as {
     aglaeaDispose?: () => void;
-    aglaeaAudioFocus?: (allowed: boolean) => void;
+    aglaeaAudioFocus?: (allowed: boolean, locallyPaused?: boolean) => void;
     nsWebViewBridge: {
       on(name: string, handler: (state: FollowState) => void): void;
       off(name: string, handler: (state: FollowState) => void): void;
@@ -26,10 +26,12 @@ export function installPlayer(): void {
   let applying = false;
   let lastStatus = '';
   let audioAllowed = false;
+  let blockedStatus = '音频焦点不可用，已暂停本机播放';
   let playerReady = false;
 
-  scope.aglaeaAudioFocus = allowed => {
+  scope.aglaeaAudioFocus = (allowed, paused = false) => {
     audioAllowed = allowed;
+    blockedStatus = paused ? '已暂停本机，可从媒体卡片继续跟随' : '音频焦点不可用，已暂停本机播放';
 
     if (!allowed) {
       document.querySelector<HTMLVideoElement>('video')?.pause();
@@ -104,7 +106,7 @@ export function installPlayer(): void {
 
       status(
         !current.paused && !audioAllowed
-          ? '音频焦点不可用，已暂停本机播放'
+          ? blockedStatus
           : `已跟随房主 · ${current.paused ? '暂停' : '播放'} · ${video.currentTime.toFixed(1)} 秒`,
       );
     } catch {

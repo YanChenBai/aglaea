@@ -187,9 +187,16 @@ function follow(): void {
   const playback = snapshot.value.playback;
   dev.aglaea.mobile.PlaybackService.updatePlayback(!playback.paused);
   const sentAt = Date.now();
+  const position = projectPlayback(playback, sentAt + session.clockOffsetMs - playback.updatedAt);
+  dev.aglaea.mobile.PlaybackService.updateMedia(
+    snapshot.value.media.title || snapshot.value.media.episodeTitle || 'Aglaea 房间播放',
+    Math.round(position * 1_000),
+    Math.round(playback.duration * 1_000),
+    playback.playbackRate,
+  );
   webview.emitToWebView('aglaeaFollow', {
     ...playback,
-    position: projectPlayback(playback, sentAt + session.clockOffsetMs - playback.updatedAt),
+    position,
     sentAt,
     tolerance: SYNC_DRIFT_TOLERANCE_SECONDS,
     force: forceSeek,
