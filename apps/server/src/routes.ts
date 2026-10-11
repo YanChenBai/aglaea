@@ -50,16 +50,15 @@ export function createRoomRoutes(
     )
     .post(
       '/api/rooms',
-      ({ body, set }) => {
+      ({ body, status }) => {
         void body;
         const { room, ownerToken } = rooms.createRoom();
-        set.status = 201;
 
-        return {
+        return status(201, {
           roomCode: room.code,
           ownerToken,
           snapshot: rooms.snapshot(room),
-        };
+        });
       },
       {
         body: createRoomBody,
@@ -68,14 +67,15 @@ export function createRoomRoutes(
     )
     .get(
       '/api/rooms/:code',
-      ({ params, set }) => {
+      ({ params, status }) => {
         const code = roomCodeSchema.parse(params.code);
         const room = rooms.peekRoom(code);
 
         if (!room) {
-          set.status = 404;
-
-          return { error: 'ROOM_NOT_FOUND' as const, message: `Room ${params.code} was not found` };
+          return status(404, {
+            error: 'ROOM_NOT_FOUND',
+            message: `Room ${params.code} was not found`,
+          });
         }
 
         return { snapshot: rooms.snapshot(room) };
@@ -87,7 +87,7 @@ export function createRoomRoutes(
     )
     .post(
       '/api/rooms/:code/controllers',
-      ({ params, body, set }) => {
+      ({ params, body, status }) => {
         try {
           return rooms.createControllerTicket(
             roomCodeSchema.parse(params.code),
@@ -96,15 +96,14 @@ export function createRoomRoutes(
           );
         } catch (error) {
           const payload: ServerMessage = roomError(error);
-          set.status = error instanceof RoomError && error.code === 'ROOM_NOT_FOUND' ? 404 : 403;
 
           if (payload.type !== 'error') {
-            set.status = 500;
-
-            return { error: 'INTERNAL', message: 'Unexpected error' };
+            return status(500, { error: 'INTERNAL', message: 'Unexpected error' });
           }
 
-          return { error: payload.payload.code, message: payload.payload.message };
+          const code = error instanceof RoomError && error.code === 'ROOM_NOT_FOUND' ? 404 : 403;
+
+          return status(code, { error: payload.payload.code, message: payload.payload.message });
         }
       },
       {

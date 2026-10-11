@@ -52,7 +52,10 @@ let unmount: (() => void) | undefined;
 function setup() {
   vi.useFakeTimers();
   vi.stubGlobal('WebSocket', Socket);
-  vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true }));
+  vi.stubGlobal(
+    'fetch',
+    vi.fn().mockImplementation(() => Promise.resolve(Response.json({ ok: true }))),
+  );
   const page = new EventTarget();
   vi.stubGlobal('window', page);
   let client!: ReturnType<typeof useRoomSocket>;
@@ -114,11 +117,12 @@ afterEach(() => {
   Socket.instances = [];
 });
 
-test('pagehide leaves once with keepalive and does not reconnect after close', () => {
+test('pagehide leaves once with keepalive and does not reconnect after close', async () => {
   const { client, socket, page } = setup();
   page.dispatchEvent(new Event('pagehide'));
   expect(client.connected.value).toBe(false);
   expect(socket.messages.at(-1)).toEqual({ type: 'leave', payload: {} });
+  await vi.waitFor(() => expect(fetch).toHaveBeenCalledOnce());
   expect(fetch).toHaveBeenCalledExactlyOnceWith('https://sync.example/api/rooms/AAAAAA/leave', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },

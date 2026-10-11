@@ -1,3 +1,4 @@
+import { createClient } from '@aglaea/client';
 import {
   computeClockOffset,
   DEFAULT_HEARTBEAT_INTERVAL_MS,
@@ -266,12 +267,11 @@ export function useRoomSocket(options: RoomSocketOptions) {
     }
 
     if (token) {
-      void fetch(`${options.serverUrl.replace(/\/$/, '')}/api/rooms/${options.roomCode}/leave`, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ connectionToken: token }),
-        keepalive: true,
-      }).catch(() => undefined);
+      const api = createClient(options.serverUrl);
+      void api.api
+        .rooms({ code: options.roomCode })
+        .leave.post({ connectionToken: token }, { fetch: { keepalive: true } })
+        .catch(() => undefined);
     }
 
     previous?.close();

@@ -21,11 +21,11 @@ export type { ControllerTicket, JoinOptions, RoomRecord, RoomUserRecord } from '
 const EMPTY_ROOM_GRACE_MS = 2_000;
 
 export class RoomError extends Error {
-  constructor(
-    readonly code: 'ROOM_NOT_FOUND' | 'ROOM_EXPIRED' | 'BAD_TOKEN' | 'FORBIDDEN' | 'INVALID_TICKET',
-    message: string,
-  ) {
+  readonly code: 'ROOM_NOT_FOUND' | 'ROOM_EXPIRED' | 'BAD_TOKEN' | 'FORBIDDEN' | 'INVALID_TICKET';
+
+  constructor(code: RoomError['code'], message: string) {
     super(message);
+    this.code = code;
     this.name = 'RoomError';
   }
 }

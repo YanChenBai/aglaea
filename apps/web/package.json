@@ -12,6 +12,7 @@
     "typecheck": "vp exec vue-tsc --noEmit"
   },
   "dependencies": {
+    "@aglaea/client": "workspace:*",
     "@aglaea/shared": "workspace:*",
     "@aglaea/ui": "workspace:*",
     "zod": "^4.6.5"

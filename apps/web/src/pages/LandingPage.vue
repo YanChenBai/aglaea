@@ -3,13 +3,12 @@ import type { RoomSnapshot } from '@aglaea/shared';
 import { UiButton, UiInput, UiPanel } from '@aglaea/ui';
 import { computed, ref } from 'vue';
 
+import { api, serverUrl } from '../api.ts';
 import BrandMark from '../components/BrandMark.vue';
 import RoomCard from '../components/RoomCard.vue';
 import StatusBadge from '../components/StatusBadge.vue';
 import { useClipboard } from '../composables/useClipboard.ts';
-import { useRoomApi, resolveApiBase } from '../composables/useRoomApi.ts';
 
-const api = useRoomApi();
 const clipboard = useClipboard();
 
 const name = ref('Aglaea');
@@ -21,7 +20,7 @@ const error = ref('');
 const notice = ref('');
 const busy = ref(false);
 
-const serverLabel = computed(() => resolveApiBase() || location.origin);
+const serverLabel = computed(() => serverUrl.value);
 const memberCount = computed(() => room.value?.members.length ?? 0);
 
 const initialRoom = new URLSearchParams(location.search).get('room');
@@ -36,7 +35,14 @@ async function newRoom(): Promise<void> {
   error.value = '';
 
   try {
-    const created = await api.createRoom(name.value.trim() || 'Aglaea');
+    const { data: created, error: failure } = await api.value.api.rooms.post({
+      name: name.value.trim() || 'Aglaea',
+    });
+
+    if (failure) {
+      throw new Error(failure.value.message);
+    }
+
     room.value = created.snapshot;
     ownerToken.value = created.ownerToken;
     joinCode.value = created.roomCode;
@@ -57,7 +63,16 @@ async function lookupRoom(): Promise<void> {
   error.value = '';
 
   try {
-    const result = await api.getRoom(joinCode.value.trim().toUpperCase());
+    const { data: result, error: failure } = await api.value.api
+      .rooms({
+        code: joinCode.value.trim().toUpperCase(),
+      })
+      .get();
+
+    if (failure) {
+      throw new Error(failure.value.message);
+    }
+
     room.value = result.snapshot;
     notice.value = `房间 ${result.snapshot.roomCode} 可用。`;
   } catch (cause) {
@@ -77,7 +92,14 @@ async function makeControlUrl(): Promise<void> {
   error.value = '';
 
   try {
-    const created = await api.createControllerSession(room.value.roomCode, 'web-owner');
+    const { data: created, error: failure } = await api.value.api
+      .rooms({ code: room.value.roomCode })
+      .controllers.post({ clientId: 'web-owner' });
+
+    if (failure) {
+      throw new Error(failure.value.message);
+    }
+
     controlUrl.value = created.controlUrl;
     notice.value = '遥控链接已生成，打开后即可在手机上控制播放。';
   } catch (cause) {
@@ -221,7 +243,7 @@ async function copyControlUrl(): Promise<void> {
           <UiPanel as="article" class="ag:p-5">
             <p class="ag:font-mono ag:text-xs ag:text-ag-gold">src/composables</p>
             <p class="ag:mt-2 ag:text-xs ag:leading-6 ag:text-ag-muted">
-              `useRoomSocket` 承载 WebSocket 状态机，`useRoomApi` 封装 REST。
+              `useRoomSocket` 承载 WebSocket 状态机，Eden Treaty 根据服务端类型调用 REST。
             </p>
           </UiPanel>
         </div>

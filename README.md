@@ -61,6 +61,7 @@ apps/
   web/         房间大厅与手机遥控页（Vue Vapor），品牌图见 public/brand/
   server/      Bun + Elysia + WebSocket 的内存房间服务
 packages/
+  client/      Eden Treaty 类型化客户端，提供响应式 Vue 入口
   shared/      Zod 协议、同步计算、房间号与令牌工具
   ui/          设计 token 与 Vue Vapor 基础组件，直接导出源码
 ```
@@ -69,8 +70,14 @@ packages/
 
 UI 基础组件由 [`@aglaea/ui`](./packages/ui/README.md) 提供，通过 `workspace:*` 直接引用源码，由应用编译。所有 workspace 的 TypeScript 版本统一在根目录 catalog 中管理，当前使用 TypeScript 6。
 
+网页与插件通过 [`@aglaea/client`](./packages/client/README.md) 调用 API，类型直接从服务端实例推导。Vue 的 `useClient(serverUrl)` 支持响应式切换地址；插件服务器地址在保存配置时写入 `browser.storage.local`，后台重启后自动恢复。
+
 ```bash
 vp install
+
+# 首次开发前生成 shared 与 client 的运行代码和类型
+vp run @aglaea/shared#build
+vp run @aglaea/client#build
 
 # 并行启动所有 workspace 的 dev（服务端 / 官网 / 网页 / 插件）
 vp run dev

@@ -1,3 +1,4 @@
+import { createClient } from '@aglaea/client';
 import {
   computeClockOffset,
   DEFAULT_HEARTBEAT_INTERVAL_MS,
@@ -197,15 +198,11 @@ export class RoomClient {
     }
 
     if (token && this.config.roomCode) {
-      void fetch(
-        `${this.config.serverUrl.replace(/\/$/, '')}/api/rooms/${this.config.roomCode}/leave`,
-        {
-          method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ connectionToken: token }),
-          keepalive: true,
-        },
-      ).catch(() => undefined);
+      const api = createClient(this.config.serverUrl);
+      void api.api
+        .rooms({ code: this.config.roomCode })
+        .leave.post({ connectionToken: token }, { fetch: { keepalive: true } })
+        .catch(() => undefined);
     }
 
     socket?.close();

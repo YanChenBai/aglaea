@@ -16,6 +16,7 @@
       "name": "@aglaea/extension",
       "version": "0.0.0",
       "dependencies": {
+        "@aglaea/client": "workspace:*",
         "@aglaea/shared": "workspace:*",
         "@aglaea/ui": "workspace:*",
         "zod": "^4.6.5",
@@ -54,6 +55,7 @@
       "name": "@aglaea/web",
       "version": "0.0.0",
       "dependencies": {
+        "@aglaea/client": "workspace:*",
         "@aglaea/shared": "workspace:*",
         "@aglaea/ui": "workspace:*",
         "zod": "^4.6.5",
@@ -87,6 +89,25 @@
         "vue": "3.6.0-rc.11",
         "vue-tsc": "catalog:",
       },
+    },
+    "packages/client": {
+      "name": "@aglaea/client",
+      "version": "0.0.0",
+      "dependencies": {
+        "@aglaea/server": "workspace:*",
+        "@elysiajs/eden": "^1.4.9",
+      },
+      "devDependencies": {
+        "typescript": "catalog:",
+        "vite-plus": "catalog:",
+        "vue": "3.6.0-rc.11",
+      },
+      "peerDependencies": {
+        "vue": "^3.5.0 || ^3.6.0-0",
+      },
+      "optionalPeers": [
+        "vue",
+      ],
     },
     "packages/shared": {
       "name": "@aglaea/shared",
@@ -125,6 +146,8 @@
   "packages": {
     "@1natsu/wait-element": ["@1natsu/wait-element@4.2.0", "", { "dependencies": { "defu": "^6.1.4", "many-keys-map": "^3.0.0" } }, "sha512-Om0Q+WE9mNrpY4AwMTvkFiYHv8VM7TML3PvOqXy+w6kAjLjKhGYHYX+305+a6J8RVpds9s7IF2Z5aOPYwULFNw=="],
 
+    "@aglaea/client": ["@aglaea/client@workspace:packages/client"],
+
     "@aglaea/extension": ["@aglaea/extension@workspace:apps/extension"],
 
     "@aglaea/server": ["@aglaea/server@workspace:apps/server"],
@@ -162,6 +185,8 @@
     "@cacheable/utils": ["@cacheable/utils@2.5.0", "", { "dependencies": { "hashery": "^1.5.1", "keyv": "^5.6.0" } }, "sha512-buipgOVDkkPXNR5+xBpDw7Zk2n1EvU7qBJCNUcL7rhQ//kfpOXPAvQ511Os0vpLYJ1pZnvudNytkQt2hst3wqA=="],
 
     "@elysiajs/cors": ["@elysiajs/cors@1.4.2", "", { "peerDependencies": { "elysia": ">= 1.4.0" } }, "sha512-FTCcbH35brTLigF1W7BYySRZomgI/dBEMK9BgK9RP9Nez7zmpGh4koL/Yr1BFv8nYz7CfhRvcM8d/c+XnwMaVQ=="],
+
+    "@elysiajs/eden": ["@elysiajs/eden@1.4.9", "", { "peerDependencies": { "elysia": ">=1.4.19" } }, "sha512-3CKVD4ycVjB8nCNssfmhnUuq3SzSHkUES3v5PNCFr9LxIrx39/HVRAZ8z2sLxrFqzUs48dCBZaxoZzJ5UUVHDA=="],
 
     "@elysiajs/openapi": ["@elysiajs/openapi@1.4.16", "", { "peerDependencies": { "@sinclair/typebox": ">= 0.34.0 < 1", "elysia": ">= 1.4.0", "typescript": ">= 5.0.0" } }, "sha512-kj8RBffE4J6myjm7nPPj6Dw1ujWt45NkdGW5sG9u3T0OfUzKN71s630/LEjajGo5jRZqFF3VHyk40lwXH2AbmQ=="],
 

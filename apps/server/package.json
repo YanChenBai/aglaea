@@ -4,6 +4,11 @@
   "description": "Aglaea in-memory synchronization server.",
   "license": "MIT",
   "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/app.ts"
+    }
+  },
   "scripts": {
     "dev": "bun --watch src/index.ts",
     "start": "bun src/index.ts",

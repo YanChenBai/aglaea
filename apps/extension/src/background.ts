@@ -1,3 +1,4 @@
+import { createClient } from '@aglaea/client';
 import type { ControlAction, ServerMessage } from '@aglaea/shared';
 import { browser } from 'wxt/browser';
 import { defineBackground } from 'wxt/utils/define-background';
@@ -368,32 +369,20 @@ export default defineBackground({
       }
     }
 
-    async function api<T>(path: string, init?: RequestInit): Promise<T> {
-      const response = await fetch(`${state.config.serverUrl.replace(/\/$/, '')}${path}`, {
-        ...init,
-        headers: new Headers([
-          ['content-type', 'application/json'],
-          ...(init?.headers ? [...new Headers(init.headers)] : []),
-        ]),
-      });
-
-      if (!response.ok) {
-        const payload = (await response.json().catch(() => ({}))) as { message?: string };
-        throw new Error(payload.message ?? `请求失败 (${response.status})`);
-      }
-
-      return (await response.json()) as T;
-    }
-
     async function createRoom(): Promise<void> {
       pendingVideoRoom = undefined;
       log('正在创建房间');
       broadcast();
 
-      const created = await api<{ roomCode: string; ownerToken: string }>('/api/rooms', {
-        method: 'POST',
-        body: JSON.stringify({ name: state.config.name }),
+      const api = createClient(state.config.serverUrl);
+
+      const { data: created, error } = await api.api.rooms.post({
+        name: state.config.name,
       });
+
+      if (error) {
+        throw new Error(error.value.message);
+      }
 
       state = {
         ...state,
@@ -461,13 +450,15 @@ export default defineBackground({
         throw new Error('请先进入房间');
       }
 
-      const created = await api<{ controlUrl: string }>(
-        `/api/rooms/${state.config.roomCode}/controllers`,
-        {
-          method: 'POST',
-          body: JSON.stringify({ clientId }),
-        },
-      );
+      const api = createClient(state.config.serverUrl);
+
+      const { data: created, error } = await api.api
+        .rooms({ code: state.config.roomCode })
+        .controllers.post({ clientId });
+
+      if (error) {
+        throw new Error(error.value.message);
+      }
 
       state = { ...state, controlUrl: created.controlUrl, lastError: undefined };
       persist();

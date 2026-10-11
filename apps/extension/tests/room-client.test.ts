@@ -46,7 +46,10 @@ const snapshot: PlayerSnapshot = {
 function connect(owner: boolean) {
   vi.useFakeTimers();
   vi.stubGlobal('WebSocket', Socket);
-  vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true }));
+  vi.stubGlobal(
+    'fetch',
+    vi.fn().mockImplementation(() => Promise.resolve(Response.json({ ok: true }))),
+  );
 
   const client = new RoomClient(
     {
@@ -160,10 +163,11 @@ test('heartbeats stay connected with pong replies and reconnect after the server
   client.disconnect();
 });
 
-test('explicit disconnect sends leave and a keepalive request for only the current connection', () => {
+test('explicit disconnect sends leave and a keepalive request for only the current connection', async () => {
   const { client, socket } = connect(false);
   client.disconnect();
   expect(socket.messages.at(-1)).toEqual({ type: 'leave', payload: {} });
+  await vi.waitFor(() => expect(fetch).toHaveBeenCalledOnce());
   expect(fetch).toHaveBeenCalledExactlyOnceWith('http://localhost:8787/api/rooms/AAAAAA/leave', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },

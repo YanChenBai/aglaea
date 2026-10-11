@@ -7,11 +7,13 @@ COPY apps/web/package.json apps/web/package.json
 COPY apps/extension/package.json apps/extension/package.json
 COPY apps/website/package.json apps/website/package.json
 COPY packages/shared/package.json packages/shared/package.json
+COPY packages/client/package.json packages/client/package.json
 COPY packages/ui/package.json packages/ui/package.json
 RUN bun install --frozen-lockfile --ignore-scripts
 
 COPY . .
 RUN bun run --cwd packages/shared build
+RUN bun run --cwd packages/client build
 RUN bun run --cwd apps/web build
 
 FROM oven/bun:1.4.3-alpine AS runtime

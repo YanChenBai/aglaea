@@ -99,8 +99,17 @@ test('responds with loaded config and retains logs when the popup requests state
   const initial = await request({ type: 'get-state' });
   expect(initial.state.config.name).toBe('Alice');
   expect(initial.state.logs).toHaveLength(1);
-  await request({ type: 'save-config', config: { name: 'Bob' } });
+  await request({
+    type: 'save-config',
+    config: { name: 'Bob', serverUrl: 'https://other.example' },
+  });
+  expect(mocks.set).toHaveBeenLastCalledWith(
+    expect.objectContaining({
+      config: expect.objectContaining({ serverUrl: 'https://other.example' }),
+    }),
+  );
   const reopened = await request({ type: 'get-state' });
+  expect(reopened.state.config.serverUrl).toBe('https://other.example');
   expect(reopened.state.logs?.at(-1)).toMatchObject({
     level: 'success',
     message: '服务器和显示名称已保存',
