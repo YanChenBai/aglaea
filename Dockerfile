@@ -8,7 +8,7 @@ COPY apps/extension/package.json apps/extension/package.json
 COPY apps/website/package.json apps/website/package.json
 COPY packages/shared/package.json packages/shared/package.json
 COPY packages/ui/package.json packages/ui/package.json
-RUN bun install --frozen-lockfile
+RUN bun install --frozen-lockfile --ignore-scripts
 
 COPY . .
 RUN bun run --cwd packages/shared build
