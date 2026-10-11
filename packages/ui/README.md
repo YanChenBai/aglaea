@@ -1,4 +1,16 @@
-# @aglaea/ui
+<p align="center">
+  <img width="200" src="../../apps/web/public/brand/aglaea-head.png" alt="Aglaea" />
+</p>
+
+<h1 align="center">@aglaea/ui</h1>
+
+<p align="center">统一 Aglaea 的设计 token 与 Vue Vapor 基础组件。</p>
+
+<p align="center">
+  <a href="https://vuejs.org"><img src="https://img.shields.io/badge/Vue-3.6_RC_Vapor-42b883?logo=vuedotjs&logoColor=white&labelColor=0a1418" alt="Vue"></a>
+  <a href="https://www.typescriptlang.org"><img src="https://img.shields.io/badge/TypeScript-6.0-3178c6?logo=typescript&logoColor=white&labelColor=0a1418" alt="TypeScript"></a>
+  <a href="https://viteplus.dev"><img src="https://img.shields.io/badge/Vite%2B-1.0-d8b46a?labelColor=0a1418" alt="Vite+"></a>
+</p>
 
 Aglaea 的设计 token 与 Vue Vapor 基础组件，设计规范由官网 [`/design`](../../apps/website/src/pages/DesignPage.vue) 展示。包直接导出 TypeScript、Vue SFC 和 CSS 源码，由消费应用编译，没有 `build` 脚本或 `dist` 目录。
 

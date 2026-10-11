@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="160" src="./assets/icon.png" alt="Aglaea" />
+  <img width="200" src="../../apps/web/public/brand/aglaea-head.png" alt="Aglaea" />
 </p>
 
 <h1 align="center">Aglaea Android</h1>
@@ -7,10 +7,9 @@
 <p align="center">把手机加入同一个房间，让 B 站播放器跟随房主的节拍。</p>
 
 <p align="center">
-  <a href="../../README.md">项目介绍</a> ·
-  <a href="../website/src/pages/DesignPage.vue">设计规范</a> ·
-  <a href="#开发">开发</a> ·
-  <a href="#验证">验证</a>
+  <a href="https://nativescript.org"><img src="https://img.shields.io/badge/NativeScript-Vue-65adf1?labelColor=0a1418" alt="NativeScript Vue"></a>
+  <img src="https://img.shields.io/badge/Android-ARM64-3ddc84?logo=android&logoColor=white&labelColor=0a1418" alt="Android ARM64">
+  <a href="https://www.typescriptlang.org"><img src="https://img.shields.io/badge/TypeScript-6.0-3178c6?logo=typescript&logoColor=white&labelColor=0a1418" alt="TypeScript"></a>
 </p>
 
 > [!NOTE]
