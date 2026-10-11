@@ -5,6 +5,12 @@ const technologies = [
   { name: 'Vue', slug: 'vuejs' },
   { name: 'TypeScript', slug: 'typescript' },
   { name: 'Bun', slug: 'bun' },
+  { name: 'Elysia', slug: 'elysia' },
+  { name: 'WXT', slug: 'wxt' },
+  { name: 'Zod', slug: 'zod' },
+  { name: 'Motion', slug: 'motion' },
+  { name: 'VueUse', slug: 'vueuse' },
+  { name: 'Lucide', slug: 'lucide' },
   { name: 'Vite+', slug: 'viteplus' },
   { name: 'Vite', slug: 'vitejs' },
   { name: 'Tailwind CSS', slug: 'tailwindcss' },
@@ -18,7 +24,7 @@ const technologies = [
 <template>
   <MotionReveal class="ag:mt-16">
     <p class="ag-eyebrow">BUILT WITH</p>
-    <ul aria-label="技术栈" class="ag:mt-7 ag:grid ag:grid-cols-5 ag:gap-y-8 ag:lg:grid-cols-10">
+    <ul aria-label="技术栈" class="ag:mt-7 ag:grid ag:grid-cols-4 ag:gap-y-8 ag:sm:grid-cols-8">
       <li
         v-for="tech in technologies"
         :key="tech.slug"
