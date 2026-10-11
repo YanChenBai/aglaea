@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "vite",
-  "installCommand": "cd ../.. && bun install --frozen-lockfile",
+  "installCommand": "cd ../.. && bun install --frozen-lockfile --filter @aglaea/website --filter @aglaea/ui",
   "buildCommand": "bun run build",
   "outputDirectory": "dist",
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]

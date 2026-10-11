@@ -147,7 +147,7 @@ vp run build    # 按依赖顺序构建全部包和应用
 
 在 Vercel 导入仓库，将 **Root Directory** 设为 `apps/website`，并开启 **Include source files outside of the Root Directory in the Build Step**，让构建可以读取 `packages/ui` 与根目录的 workspace 配置。
 
-官网的 `vercel.json` 已配置依赖安装、构建命令、`dist` 输出目录和 SPA 路由回退，`/design` 可以直接访问和刷新，无需额外环境变量。
+官网的 `vercel.json` 只安装官网与 `packages/ui` 的依赖，避免触发浏览器扩展的 `postinstall`；同时配置了构建命令、`dist` 输出目录和 SPA 路由回退，`/design` 可以直接访问和刷新，无需额外环境变量。
 
 ### Docker 部署同步服务与网页
 
