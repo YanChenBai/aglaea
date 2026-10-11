@@ -1,0 +1,32 @@
+{
+  "name": "@aglaea/ui",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Aglaea design tokens and Vue Vapor UI components.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "exports": {
+    ".": "./src/index.ts",
+    "./tokens": "./src/tokens.ts",
+    "./styles.css": "./src/styles.css",
+    "./base.css": "./src/base.css",
+    "./tailwind.css": "./src/tailwind.css",
+    "./tokens.css": "./src/tokens.css"
+  },
+  "scripts": {
+    "check": "vp check && vp run typecheck",
+    "typecheck": "vp exec vue-tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "catalog:",
+    "vite-plus": "catalog:",
+    "vue": "3.6.0-rc.11",
+    "vue-tsc": "catalog:"
+  },
+  "peerDependencies": {
+    "vue": "3.6.0-rc.11"
+  }
+}

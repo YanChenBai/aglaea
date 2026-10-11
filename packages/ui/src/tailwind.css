@@ -1,0 +1,20 @@
+@import './tokens.css';
+
+@theme inline {
+  --font-sans: var(--ag-ui-font-sans);
+  --font-serif: var(--ag-ui-font-serif);
+  --font-mono: var(--ag-ui-font-mono);
+
+  --color-ag-ink: var(--ag-ui-ink);
+  --color-ag-ink-soft: var(--ag-ui-ink-soft);
+  --color-ag-deep: var(--ag-ui-deep);
+  --color-ag-tide: var(--ag-ui-tide);
+  --color-ag-gold: var(--ag-ui-gold);
+  --color-ag-gold-deep: var(--ag-ui-gold-deep);
+  --color-ag-gold-pale: var(--ag-ui-gold-pale);
+  --color-ag-paper: var(--ag-ui-paper);
+  --color-ag-mist: var(--ag-ui-mist);
+  --color-ag-jade: var(--ag-ui-jade);
+  --color-ag-ember: var(--ag-ui-ember);
+  --color-ag-muted: var(--ag-ui-muted);
+}

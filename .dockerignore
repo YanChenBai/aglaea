@@ -1,0 +1,10 @@
+node_modules
+**/node_modules
+**/dist
+.git
+.vscode
+.probe-vapor
+*.log
+.env
+.env.*
+!.env.example

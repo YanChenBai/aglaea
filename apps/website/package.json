@@ -1,0 +1,31 @@
+{
+  "name": "@aglaea/website",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Aglaea official website.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "vp dev",
+    "build": "vp build",
+    "check": "vp check",
+    "preview": "vp preview",
+    "typecheck": "vp exec vue-tsc --noEmit"
+  },
+  "dependencies": {
+    "@aglaea/ui": "workspace:*",
+    "@vueuse/core": "^15.0.0",
+    "lucide-vue-next": "^1.0.0",
+    "motion-v": "^2.6.0",
+    "vue-router": "^5.4.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@vitejs/plugin-vue": "^6.0.10",
+    "tailwindcss": "^4.3.3",
+    "typescript": "catalog:",
+    "vite-plus": "catalog:",
+    "vue": "3.6.0-rc.11",
+    "vue-tsc": "catalog:"
+  }
+}

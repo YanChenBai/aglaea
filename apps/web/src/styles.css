@@ -1,0 +1,4 @@
+@import 'tailwindcss' prefix(ag);
+@import '@aglaea/ui/tailwind.css';
+@import '@aglaea/ui/styles.css';
+@import '@aglaea/ui/base.css';

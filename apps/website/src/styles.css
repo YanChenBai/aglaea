@@ -1,0 +1,92 @@
+@import 'tailwindcss' prefix(ag);
+@import '@aglaea/ui/tailwind.css';
+@import '@aglaea/ui/styles.css';
+@import '@aglaea/ui/base.css';
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  #app {
+    isolation: isolate;
+  }
+}
+
+@layer components {
+  .ag-ambient {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .ag-ambient::before,
+  .ag-ambient::after {
+    content: '';
+    position: absolute;
+    top: -20vmax;
+    left: -15vmax;
+    width: 85vmax;
+    height: 85vmax;
+    background: radial-gradient(
+      circle closest-side in oklab,
+      rgb(216 180 106 / 6%),
+      rgb(216 180 106 / 0%) 80%
+    );
+    filter: blur(48px);
+  }
+  .ag-ambient::after {
+    top: auto;
+    left: auto;
+    right: -15vmax;
+    bottom: -25vmax;
+  }
+  .ag-ambient-supported::before,
+  .ag-ambient-supported::after {
+    content: none;
+  }
+  .ag-eyebrow {
+    font-family: var(--ag-ui-font-mono);
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ag-ui-gold);
+  }
+  .ag-section-heading .ag-eyebrow {
+    font-size: 11px;
+    line-height: 1.6;
+    letter-spacing: 0.16em;
+    color: rgb(216 180 106 / 80%);
+  }
+  .ag-section-heading h2 {
+    margin-top: 16px;
+    font-size: clamp(28px, 2.4vw, 36px);
+    line-height: 1.4;
+    letter-spacing: 0.015em;
+  }
+}
+
+@layer components {
+  .ag-site-cta {
+    --ag-ui-border: rgb(216 180 106 / 32%);
+    --ag-ui-fill: rgb(216 180 106 / 4%);
+    --ag-ui-hover: rgb(216 180 106 / 10%);
+    font-size: 12px;
+    font-weight: 400;
+    box-shadow: inset 0 1px 0 rgb(240 220 174 / 4%);
+  }
+  .ag-site-cta:hover {
+    border-color: rgb(216 180 106 / 55%);
+  }
+  .ag-site-link {
+    --ag-ui-border: transparent;
+    --ag-ui-fill: transparent;
+    font-size: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}

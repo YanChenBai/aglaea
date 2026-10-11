@@ -1,0 +1,32 @@
+:root {
+  --ag-ui-font-sans: 'Noto Sans SC', 'Segoe UI', system-ui, sans-serif;
+  --ag-ui-font-serif: 'Cormorant Garamond', 'Noto Serif SC', Georgia, serif;
+  --ag-ui-font-mono: 'JetBrains Mono', 'Cascadia Code', Consolas, monospace;
+
+  --ag-ui-ink: #0c0c0c;
+  --ag-ui-ink-soft: #171717;
+  --ag-ui-deep: #242424;
+  --ag-ui-tide: #343434;
+  --ag-ui-gold: #d8b46a;
+  --ag-ui-gold-deep: #a87e3d;
+  --ag-ui-gold-pale: #f0dcae;
+  --ag-ui-paper: #f3f0e8;
+  --ag-ui-mist: #d8e6e2;
+  --ag-ui-jade: #69cdad;
+  --ag-ui-ember: #e07a5f;
+  --ag-ui-muted: #8fa3a7;
+  --ag-ui-radius: 8px;
+  --ag-ui-control-height: 40px;
+  --ag-ui-input-height: 44px;
+  --ag-ui-motion-instant: 120ms;
+  --ag-ui-motion-quick: 180ms;
+  --ag-ui-motion-settle: 320ms;
+  --ag-ui-space-2xs: 4px;
+  --ag-ui-space-xs: 8px;
+  --ag-ui-space-sm: 12px;
+  --ag-ui-space-md: 16px;
+  --ag-ui-space-lg: 24px;
+  --ag-ui-space-xl: 32px;
+  --ag-ui-space-2xl: 48px;
+  --ag-ui-space-3xl: 72px;
+}

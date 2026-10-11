@@ -1,0 +1,48 @@
+{
+  "name": "aglaea",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "workspaces": [
+    "packages/*",
+    "apps/*",
+    "tools/*"
+  ],
+  "type": "module",
+  "scripts": {
+    "ready": "vp check && vp run typecheck && vp test && vp run build",
+    "build": "vp run -r build",
+    "dev": "vp run -r --parallel dev",
+    "dev:website": "vp run @aglaea/website#dev",
+    "dev:server": "vp run @aglaea/server#dev",
+    "dev:extension": "vp run @aglaea/extension#dev",
+    "prepare": "vp config",
+    "typecheck": "vp run -r typecheck"
+  },
+  "devDependencies": {
+    "@stylistic/eslint-plugin": "^5.10.0",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plus": "catalog:",
+    "vue-tsc": "catalog:"
+  },
+  "overrides": {
+    "vite": "catalog:"
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "bun",
+      "version": "1.4.3",
+      "onFail": "download"
+    }
+  },
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "catalog": {
+    "vite": "npm:@voidzero-dev/vite-plus-core@1.0.0",
+    "vite-plus": "1.0.0",
+    "typescript": "~6.0.0",
+    "vue-tsc": "^3.3.13"
+  }
+}
