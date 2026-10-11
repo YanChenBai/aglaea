@@ -36,7 +36,7 @@ public class PlaybackService extends Service {
     private boolean locallyPaused;
     private MediaSession mediaSession;
     private Bitmap artwork;
-    private String title = "Aglaea 房间播放";
+    private String title = "阿格莱雅 Aglaea 房间播放";
     private long position;
     private long duration;
     private float speed = 1f;
@@ -76,7 +76,7 @@ public class PlaybackService extends Service {
         if (changed) {
             instance.mediaSession.setMetadata(new MediaMetadata.Builder()
                 .putString(MediaMetadata.METADATA_KEY_TITLE, title)
-                .putString(MediaMetadata.METADATA_KEY_ARTIST, "Aglaea · 房间同步")
+                .putString(MediaMetadata.METADATA_KEY_ARTIST, "阿格莱雅 Aglaea · 房间同步")
                 .putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, instance.artwork)
                 .putLong(MediaMetadata.METADATA_KEY_DURATION, duration).build());
             instance.refreshNotification();
@@ -111,7 +111,7 @@ public class PlaybackService extends Service {
         });
         mediaSession.setMetadata(new MediaMetadata.Builder()
             .putString(MediaMetadata.METADATA_KEY_TITLE, title)
-            .putString(MediaMetadata.METADATA_KEY_ARTIST, "Aglaea · 房间同步")
+            .putString(MediaMetadata.METADATA_KEY_ARTIST, "阿格莱雅 Aglaea · 房间同步")
             .putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, artwork).build());
         // 首次发布通知前补齐会话状态，避免系统先接收到空的媒体会话。
         publishState();
@@ -182,7 +182,7 @@ public class PlaybackService extends Service {
         return new Notification.Builder(this, CHANNEL)
             .setSmallIcon(getResources().getIdentifier("ic_notification", "drawable", getPackageName()))
             .setLargeIcon(artwork)
-            .setContentTitle(title).setContentText("Aglaea · 房间同步")
+            .setContentTitle(title).setContentText("阿格莱雅 Aglaea · 房间同步")
             .setContentIntent(open).setOngoing(true).setOnlyAlertOnce(true)
             .setVisibility(Notification.VISIBILITY_PUBLIC)
             .setCategory(Notification.CATEGORY_TRANSPORT)

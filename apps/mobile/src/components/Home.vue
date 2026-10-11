@@ -189,7 +189,7 @@ function follow(): void {
   const sentAt = Date.now();
   const position = projectPlayback(playback, sentAt + session.clockOffsetMs - playback.updatedAt);
   dev.aglaea.mobile.PlaybackService.updateMedia(
-    snapshot.value.media.title || snapshot.value.media.episodeTitle || 'Aglaea 房间播放',
+    snapshot.value.media.title || snapshot.value.media.episodeTitle || '阿格莱雅 Aglaea 房间播放',
     Math.round(position * 1_000),
     Math.round(playback.duration * 1_000),
     playback.playbackRate,
