@@ -1,6 +1,7 @@
 import {
   computeClockOffset,
   DEFAULT_HEARTBEAT_INTERVAL_MS,
+  DEFAULT_HEARTBEAT_TIMEOUT_MS,
   type ClientMessage,
   type ControlAction,
   type ServerMessage,
@@ -23,6 +24,10 @@ export class RoomClient {
   private lastPlayerAt = 0;
 
   private lastPingAt = 0;
+
+  private lastPongAt = 0;
+
+  private connectionToken?: string;
 
   private clockOffsetMs = 0;
 
@@ -86,6 +91,8 @@ export class RoomClient {
       const message = JSON.parse(String(event.data)) as ServerMessage;
 
       if (message.type === 'hello') {
+        this.connectionToken = message.payload.connectionToken;
+        this.lastPongAt = Date.now();
         this.joined = true;
         this.reconnectAttempts = 0;
         this.clockOffsetMs = message.payload.snapshot.playback.serverClock - Date.now();
@@ -94,6 +101,7 @@ export class RoomClient {
       }
 
       if (message.type === 'pong') {
+        this.lastPongAt = Date.now();
         const roundTrip = Date.now() - message.payload.clientTime;
         this.clockOffsetMs = computeClockOffset(
           message.payload.clientTime,
@@ -180,7 +188,26 @@ export class RoomClient {
     this.stopTimers();
     this.joined = false;
     const socket = this.socket;
+    const token = this.connectionToken;
     this.socket = undefined;
+    this.connectionToken = undefined;
+
+    if (socket?.readyState === WebSocket.OPEN) {
+      socket.send(JSON.stringify({ type: 'leave', payload: {} }));
+    }
+
+    if (token && this.config.roomCode) {
+      void fetch(
+        `${this.config.serverUrl.replace(/\/$/, '')}/api/rooms/${this.config.roomCode}/leave`,
+        {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ connectionToken: token }),
+          keepalive: true,
+        },
+      ).catch(() => undefined);
+    }
+
     socket?.close();
   }
 
@@ -191,6 +218,12 @@ export class RoomClient {
   private startHeartbeat(): void {
     this.stopTimers();
     this.pingTimer = setInterval(() => {
+      if (Date.now() - this.lastPongAt >= DEFAULT_HEARTBEAT_TIMEOUT_MS) {
+        this.connect();
+
+        return;
+      }
+
       this.lastPingAt = Date.now();
       this.send({ type: 'ping', payload: { clientTime: this.lastPingAt } });
     }, DEFAULT_HEARTBEAT_INTERVAL_MS);

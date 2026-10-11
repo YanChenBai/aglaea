@@ -1,3 +1,4 @@
+import { DEFAULT_HEARTBEAT_INTERVAL_MS } from '@aglaea/shared';
 import { cors } from '@elysiajs/cors';
 import { openapi } from '@elysiajs/openapi';
 import { staticPlugin } from '@elysiajs/static';
@@ -9,7 +10,17 @@ import { createRoomRoutes } from './routes.ts';
 import { createRoomSocketHandlers } from './socket.ts';
 
 export function createApp(config: ServerConfig, rooms = new RoomManager()) {
+  const sockets = createRoomSocketHandlers(rooms);
+  let heartbeatTimer: ReturnType<typeof setInterval> | undefined;
+
   return new Elysia()
+    .onStart(() => {
+      heartbeatTimer = setInterval(sockets.sweep, DEFAULT_HEARTBEAT_INTERVAL_MS);
+    })
+    .onStop(() => {
+      clearInterval(heartbeatTimer);
+      heartbeatTimer = undefined;
+    })
     .use(
       cors({
         origin: true,
@@ -40,9 +51,10 @@ export function createApp(config: ServerConfig, rooms = new RoomManager()) {
         ? staticPlugin({ assets: config.staticRoot, prefix: '' })
         : new Elysia({ name: 'aglaea-static-noop' }),
     )
-    .use(createRoomRoutes(rooms, config.websiteUrl))
+    .use(createRoomRoutes(rooms, config.websiteUrl, sockets))
     .ws('/ws', {
-      ...createRoomSocketHandlers(rooms),
+      message: sockets.message,
+      close: sockets.close,
       detail: {
         summary: '房间 WebSocket',
         description: '客户端先发送 hello 加入房间；随后可发送 sync、control、ping、leave。',

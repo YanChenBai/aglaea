@@ -14,7 +14,6 @@ const controllerToken = params.get('token') ?? '';
 const serverUrl = (params.get('server') ?? '').replace(/\/$/, '');
 
 const volume = ref(1);
-const fullscreen = ref(false);
 
 const socket = useRoomSocket({
   serverUrl: serverUrl || `${location.protocol}//${location.host}`,
@@ -94,19 +93,13 @@ socket.connect();
             :enabled="socket.canControl.value"
             :personal-enabled="socket.connected.value"
             :hide-playback-controls="target?.role !== 'owner'"
-            :fullscreen="fullscreen"
             @volume="
               value => {
                 volume = value;
                 socket.control({ type: 'volume', volume: value });
               }
             "
-            @control="
-              action => {
-                if (action.type === 'fullscreen') fullscreen = Boolean(action.enabled);
-                socket.control(action);
-              }
-            "
+            @control="socket.control"
           />
         </div>
 
@@ -118,8 +111,8 @@ socket.connect();
       <p class="ag:mt-8 ag:text-center ag:text-[10px] ag:leading-relaxed ag:text-ag-muted">
         {{
           target?.role === 'member'
-            ? '成员可手动对齐房主进度，并调整自己播放器的音量和全屏。'
-            : '房主可控制房间进度、播放与切集，音量和全屏只影响自己的播放器。'
+            ? '成员可手动对齐房主进度，并调整自己播放器的音量和网页全屏。'
+            : '房主可控制房间进度、播放与切集，音量和网页全屏只影响自己的播放器。'
         }}
         遥控链接在房间有效期间保持可用。
       </p>

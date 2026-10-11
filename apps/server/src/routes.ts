@@ -3,8 +3,13 @@ import { Elysia, t } from 'elysia';
 
 import { roomError } from './errors.ts';
 import { RoomError, type RoomManager } from './room-manager.ts';
+import type { createRoomSocketHandlers } from './socket.ts';
 
-export function createRoomRoutes(rooms: RoomManager, websiteUrl: string) {
+export function createRoomRoutes(
+  rooms: RoomManager,
+  websiteUrl: string,
+  sockets: Pick<ReturnType<typeof createRoomSocketHandlers>, 'leaveConnection'>,
+) {
   const createRoomBody = t.Object({ name: t.Optional(t.String({ minLength: 1, maxLength: 24 })) });
 
   return new Elysia()
@@ -28,6 +33,19 @@ export function createRoomRoutes(rooms: RoomManager, websiteUrl: string) {
             uptime: t.Number(),
           }),
         },
+      },
+    )
+    .post(
+      '/api/rooms/:code/leave',
+      ({ params, body }) => {
+        sockets.leaveConnection(roomCodeSchema.parse(params.code), body.connectionToken);
+
+        return { ok: true };
+      },
+      {
+        params: t.Object({ code: t.String() }),
+        body: t.Object({ connectionToken: t.String({ minLength: 1, maxLength: 80 }) }),
+        detail: { summary: '退出当前连接', tags: ['rooms'] },
       },
     )
     .post(

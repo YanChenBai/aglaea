@@ -13,7 +13,6 @@ const props = defineProps<{
   enabled: boolean;
   personalEnabled?: boolean;
   hidePlaybackControls?: boolean;
-  fullscreen: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -81,9 +80,9 @@ function onSeek(event: Event): void {
       <UiButton
         variant="success"
         :disabled="!(personalEnabled ?? enabled)"
-        @click="emit('control', { type: 'fullscreen', enabled: !fullscreen })"
+        @click="emit('control', { type: 'fullscreen' })"
       >
-        {{ fullscreen ? '退出全屏' : '触发全屏' }}
+        切换网页全屏
       </UiButton>
       <UiButton
         variant="ghost"

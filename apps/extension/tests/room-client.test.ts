@@ -1,4 +1,10 @@
-import { DEFAULT_SYNC_INTERVAL_MS, type ClientMessage, type ServerMessage } from '@aglaea/shared';
+import {
+  DEFAULT_HEARTBEAT_INTERVAL_MS,
+  DEFAULT_HEARTBEAT_TIMEOUT_MS,
+  DEFAULT_SYNC_INTERVAL_MS,
+  type ClientMessage,
+  type ServerMessage,
+} from '@aglaea/shared';
 import { afterEach, expect, test, vi } from 'vite-plus/test';
 
 import type { PlayerSnapshot } from '../src/messaging.ts';
@@ -40,6 +46,7 @@ const snapshot: PlayerSnapshot = {
 function connect(owner: boolean) {
   vi.useFakeTimers();
   vi.stubGlobal('WebSocket', Socket);
+  vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true }));
 
   const client = new RoomClient(
     {
@@ -59,6 +66,7 @@ function connect(owner: boolean) {
     type: 'hello',
     payload: {
       protocolVersion: 1,
+      connectionToken: 'connection-token',
       you: {
         clientId: 'client',
         name: 'Test',
@@ -128,4 +136,42 @@ test('reconnects after a dropped socket and explicit disconnect cancels retries'
   replacement.dispatchEvent(new Event('close'));
   vi.advanceTimersByTime(20_000);
   expect(Socket.instances).toHaveLength(2);
+});
+
+test('heartbeats stay connected with pong replies and reconnect after the server stops responding', () => {
+  const { client, socket } = connect(false);
+
+  for (let index = 0; index < 8; index += 1) {
+    vi.advanceTimersByTime(DEFAULT_HEARTBEAT_INTERVAL_MS);
+    const ping = socket.messages.at(-1)!;
+    expect(ping.type).toBe('ping');
+
+    if (ping.type === 'ping') {
+      socket.receive({
+        type: 'pong',
+        payload: { clientTime: ping.payload.clientTime, serverTime: Date.now(), roomRound: 0 },
+      });
+    }
+  }
+
+  expect(Socket.instances).toHaveLength(1);
+  vi.advanceTimersByTime(DEFAULT_HEARTBEAT_TIMEOUT_MS);
+  expect(Socket.instances).toHaveLength(2);
+  client.disconnect();
+});
+
+test('explicit disconnect sends leave and a keepalive request for only the current connection', () => {
+  const { client, socket } = connect(false);
+  client.disconnect();
+  expect(socket.messages.at(-1)).toEqual({ type: 'leave', payload: {} });
+  expect(fetch).toHaveBeenCalledExactlyOnceWith('http://localhost:8787/api/rooms/AAAAAA/leave', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ connectionToken: 'connection-token' }),
+    keepalive: true,
+  });
+  client.disconnect();
+  expect(fetch).toHaveBeenCalledOnce();
+  vi.advanceTimersByTime(DEFAULT_HEARTBEAT_TIMEOUT_MS);
+  expect(Socket.instances).toHaveLength(1);
 });

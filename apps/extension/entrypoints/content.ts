@@ -559,8 +559,7 @@ export default defineContentScript({
         }
 
         case 'fullscreen': {
-          fullscreen(action.enabled !== false);
-          fullscreenActive = action.enabled !== false;
+          fullscreenActive = fullscreen(action.enabled);
           break;
         }
 

@@ -193,7 +193,7 @@ async function copyControlUrl(): Promise<void> {
               </p>
             </div>
             <div class="ag:border-l-2 ag:border-ag-jade/60 ag:bg-ag-ink-soft/60 ag:px-5 ag:py-4">
-              <p class="ag:text-sm">播放、暂停、切集、全屏</p>
+              <p class="ag:text-sm">播放、暂停、切集、网页全屏</p>
               <p class="ag:mt-1 ag:text-xs ag:text-ag-muted">
                 控制动作只在房主端执行，遥控页可以调整音量与进度。
               </p>

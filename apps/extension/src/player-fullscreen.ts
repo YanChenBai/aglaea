@@ -1,75 +1,44 @@
 export function createPlayerFullscreen() {
-  let nativeTarget: HTMLElement | undefined;
-  let webFullscreen: HTMLElement | undefined;
-  let revision = 0;
+  let ownedButton: HTMLElement | undefined;
 
-  function enterWebFullscreen(player: HTMLElement): void {
-    const button = player.querySelector<HTMLElement>('.bpx-player-ctrl-web');
+  return (enabled?: boolean): boolean => {
+    if (enabled === false) {
+      if (ownedButton?.classList.contains('bpx-state-entered')) {
+        ownedButton.click();
+      }
 
-    if (!button || button.classList.contains('bpx-state-entered')) {
-      return;
-    }
+      ownedButton = undefined;
 
-    webFullscreen = button;
-    button.click();
-  }
-
-  function exitFullscreen(): void {
-    if (document.fullscreenElement && nativeTarget?.contains(document.fullscreenElement)) {
-      void document.exitFullscreen().catch(() => {});
-    }
-
-    if (webFullscreen?.classList.contains('bpx-state-entered')) {
-      webFullscreen.click();
-    }
-
-    nativeTarget = undefined;
-    webFullscreen = undefined;
-  }
-
-  return (enabled: boolean): void => {
-    const current = ++revision;
-
-    if (!enabled) {
-      exitFullscreen();
-
-      return;
+      return false;
     }
 
     const player = document.querySelector<HTMLElement>('#bilibili-player, .bpx-player-container');
 
     if (!player) {
-      throw new Error('未找到可全屏的播放器');
+      throw new Error('未找到可网页全屏的播放器');
     }
 
     if (document.fullscreenElement) {
-      return;
+      return false;
     }
 
-    // 全屏布局交给 B 站管理，避免强制样式阻止原有按钮退出网页全屏。
-    if (!navigator.userActivation?.isActive) {
-      enterWebFullscreen(player);
+    const button = player.querySelector<HTMLElement>('.bpx-player-ctrl-web');
 
-      return;
+    if (!button) {
+      throw new Error('未找到播放器的网页全屏按钮');
     }
 
-    const button = player.querySelector<HTMLElement>('.bpx-player-ctrl-full');
+    const entered = button.classList.contains('bpx-state-entered');
+    const next = enabled ?? !entered;
 
-    if (button) {
-      nativeTarget = player;
-      button.click();
-    } else if (player.requestFullscreen) {
-      nativeTarget = player;
-      void player.requestFullscreen().catch(() => {
-        if (revision !== current) {
-          return;
-        }
-
-        nativeTarget = undefined;
-        enterWebFullscreen(player);
-      });
-    } else {
-      enterWebFullscreen(player);
+    if (entered === next) {
+      return entered;
     }
+
+    // 以播放器当前状态切换，避免手动退出后遥控页面的状态过期。
+    ownedButton = next ? button : undefined;
+    button.click();
+
+    return next;
   };
 }

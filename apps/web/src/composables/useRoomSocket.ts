@@ -1,6 +1,7 @@
 import {
   computeClockOffset,
   DEFAULT_HEARTBEAT_INTERVAL_MS,
+  DEFAULT_HEARTBEAT_TIMEOUT_MS,
   projectPlayback,
   PROTOCOL_VERSION,
   type ClientMessage,
@@ -40,6 +41,8 @@ export function useRoomSocket(options: RoomSocketOptions) {
   let lastPingAt = 0;
   let reconnectTimer: ReturnType<typeof setTimeout> | undefined;
   let reconnectAttempts = 0;
+  let connectionToken: string | undefined;
+  let lastPongAt = 0;
 
   const connected = computed(() => status.value === 'connected');
   const paused = computed(() => snapshot.value?.playback.paused ?? true);
@@ -138,6 +141,8 @@ export function useRoomSocket(options: RoomSocketOptions) {
         error.value = '';
 
         if (message.type === 'hello') {
+          connectionToken = message.payload.connectionToken;
+          lastPongAt = Date.now();
           you.value = message.payload.you;
           reconnectAttempts = 0;
           clockOffsetMs.value = snapshot.value.playback.serverClock - Date.now();
@@ -161,6 +166,7 @@ export function useRoomSocket(options: RoomSocketOptions) {
       }
 
       case 'pong': {
+        lastPongAt = Date.now();
         const roundTrip = Date.now() - lastPingAt;
         clockOffsetMs.value = computeClockOffset(lastPingAt, message.payload.serverTime, roundTrip);
         break;
@@ -182,6 +188,12 @@ export function useRoomSocket(options: RoomSocketOptions) {
     stopTimers();
 
     const ping = (): void => {
+      if (Date.now() - lastPongAt >= DEFAULT_HEARTBEAT_TIMEOUT_MS) {
+        connect();
+
+        return;
+      }
+
       lastPingAt = Date.now();
       send({ type: 'ping', payload: { clientTime: lastPingAt } });
     };
@@ -244,11 +256,40 @@ export function useRoomSocket(options: RoomSocketOptions) {
     reconnectTimer = undefined;
     stopTimers();
     const previous = socket;
+    const token = connectionToken;
     socket = undefined;
+    connectionToken = undefined;
+    status.value = 'idle';
+
+    if (previous?.readyState === WebSocket.OPEN) {
+      previous.send(JSON.stringify({ type: 'leave', payload: {} }));
+    }
+
+    if (token) {
+      void fetch(`${options.serverUrl.replace(/\/$/, '')}/api/rooms/${options.roomCode}/leave`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ connectionToken: token }),
+        keepalive: true,
+      }).catch(() => undefined);
+    }
+
     previous?.close();
   }
 
-  onUnmounted(disconnect);
+  function restore(event: PageTransitionEvent): void {
+    if (event.persisted) {
+      connect();
+    }
+  }
+
+  window.addEventListener('pagehide', disconnect);
+  window.addEventListener('pageshow', restore);
+  onUnmounted(() => {
+    window.removeEventListener('pagehide', disconnect);
+    window.removeEventListener('pageshow', restore);
+    disconnect();
+  });
 
   return {
     snapshot,

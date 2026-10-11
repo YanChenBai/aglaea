@@ -7,7 +7,7 @@ const features = [
   { title: '持续同步', body: '房主播放、暂停或切集，成员跟随同一份进度。', icon: Radio },
   { title: '时钟对齐', body: '校准时钟与播放偏移，让每个屏幕跟上同一拍。', icon: Clock3 },
   { title: '角色分工', body: '房主掌握播放，成员跟随，遥控端发出指令。', icon: Users },
-  { title: '手机遥控', body: '打开分享链接，从掌心掌握播放、切集与全屏。', icon: Smartphone },
+  { title: '手机遥控', body: '打开分享链接，从掌心掌握播放、切集与网页全屏。', icon: Smartphone },
   { title: '跳转同步', body: '拖动进度或调整倍速，成员随即跟上。', icon: Waypoints },
   { title: '自动回收', body: '房间到期自动清理，无需手动收尾。', icon: TimerReset },
 ];

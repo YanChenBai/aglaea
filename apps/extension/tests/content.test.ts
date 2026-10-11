@@ -48,6 +48,7 @@ function setup(role: 'owner' | 'member') {
   mocks.sendMessage.mockReset();
   mocks.addListener.mockReset();
   mocks.fullscreen.mockReset();
+  mocks.fullscreen.mockImplementation((enabled?: boolean) => enabled !== false);
   const video = new Video();
   let currentVideo = video;
   const nodes: (EventTarget & { title?: string; disabled?: boolean })[] = [];
@@ -165,6 +166,21 @@ test('only explicit player controls enter fullscreen, never room state updates',
   expect(mocks.fullscreen).toHaveBeenCalledExactlyOnceWith(true);
   receive({ type: 'aglaea:state', state });
   expect(mocks.fullscreen).toHaveBeenCalledTimes(1);
+});
+
+test('passes web fullscreen toggles to the player without forcing entry', async () => {
+  const { receive } = setup('member');
+  await vi.advanceTimersByTimeAsync(0);
+
+  for (let index = 0; index < 2; index += 1) {
+    const result = await new Promise<{ ok: boolean }>(resolve => {
+      receive({ type: 'aglaea:execute-control', payload: { type: 'fullscreen' } }, {}, resolve);
+    });
+
+    expect(result.ok).toBe(true);
+  }
+
+  expect(mocks.fullscreen.mock.calls).toEqual([[undefined], [undefined]]);
 });
 
 test('unbound pages neither follow room playback nor upload samples or execute controls', async () => {

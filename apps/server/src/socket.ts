@@ -1,5 +1,6 @@
 import {
   clientMessageSchema,
+  DEFAULT_HEARTBEAT_TIMEOUT_MS,
   PROTOCOL_VERSION,
   type ClientMessage,
   type ControlAction,
@@ -13,6 +14,8 @@ interface SocketData {
   roomCode?: string;
   clientId?: string;
   user?: RoomUserRecord;
+  connectionToken?: string;
+  lastSeenAt?: number;
 }
 
 interface AglaeaSocket {
@@ -28,6 +31,7 @@ interface HelloContext {
 
 export function createRoomSocketHandlers(rooms: RoomManager) {
   const clientsByRoom = new Map<string, Map<string, AglaeaSocket>>();
+  const connections = new Map<string, AglaeaSocket>();
 
   function send(socket: AglaeaSocket, message: ServerMessage): void {
     socket.send(JSON.stringify(message));
@@ -73,10 +77,15 @@ export function createRoomSocketHandlers(rooms: RoomManager) {
     socketData(socket).roomCode = joined.room.code;
     socketData(socket).clientId = joined.user.clientId;
     socketData(socket).user = joined.user;
+    const connectionToken = crypto.randomUUID();
+    socketData(socket).connectionToken = connectionToken;
+    socketData(socket).lastSeenAt = Date.now();
+    connections.set(connectionToken, socket);
     const previous = roomClients(joined.room.code).get(joined.user.clientId);
     roomClients(joined.room.code).set(joined.user.clientId, socket);
 
-    if (previous && previous !== socket) {
+    if (previous && previous.data !== socket.data) {
+      leaveSocket(previous);
       previous.close();
     }
 
@@ -86,6 +95,7 @@ export function createRoomSocketHandlers(rooms: RoomManager) {
         protocolVersion: PROTOCOL_VERSION,
         snapshot: joined.snapshot,
         you: joined.user,
+        connectionToken,
       },
     });
     broadcast(
@@ -168,6 +178,8 @@ export function createRoomSocketHandlers(rooms: RoomManager) {
     }
 
     try {
+      socketData(socket).lastSeenAt = Date.now();
+
       switch (message.type) {
         case 'sync': {
           const snapshot = rooms.applyPlayback(
@@ -207,6 +219,7 @@ export function createRoomSocketHandlers(rooms: RoomManager) {
 
         case 'leave': {
           leaveSocket(socket);
+          socket.close();
           break;
         }
       }
@@ -218,7 +231,12 @@ export function createRoomSocketHandlers(rooms: RoomManager) {
   function getSocketContext(socket: AglaeaSocket): HelloContext | undefined {
     const data = socketData(socket);
 
-    if (!data.roomCode || !data.clientId || !data.user) {
+    if (
+      !data.roomCode ||
+      !data.clientId ||
+      !data.user ||
+      clientsByRoom.get(data.roomCode)?.get(data.clientId)?.data !== socket.data
+    ) {
       return undefined;
     }
 
@@ -239,14 +257,21 @@ export function createRoomSocketHandlers(rooms: RoomManager) {
   }
 
   function leaveSocket(socket: AglaeaSocket): void {
-    const { roomCode, clientId } = socketData(socket);
+    const data = socketData(socket);
+    const { roomCode, clientId, connectionToken } = data;
+
+    if (connectionToken) {
+      connections.delete(connectionToken);
+      data.connectionToken = undefined;
+    }
 
     if (!roomCode || !clientId) {
       return;
     }
 
+    // Elysia 每次回调创建新的包装对象，用共享 data 识别同一连接。
     // 旧连接的 close 事件不能移除已重连的同一客户端。
-    if (clientsByRoom.get(roomCode)?.get(clientId) !== socket) {
+    if (clientsByRoom.get(roomCode)?.get(clientId)?.data !== socket.data) {
       return;
     }
 
@@ -279,5 +304,30 @@ export function createRoomSocketHandlers(rooms: RoomManager) {
     }
   }
 
-  return { message, close: leaveSocket };
+  function leaveConnection(roomCode: string, connectionToken: string): void {
+    const socket = connections.get(connectionToken);
+
+    if (!socket || socketData(socket).roomCode !== roomCode) {
+      return;
+    }
+
+    // 令牌只属于这一次连接，旧页面迟到的退出请求不能移除重连后的客户端。
+    leaveSocket(socket);
+    socket.close();
+  }
+
+  function sweep(): void {
+    const now = Date.now();
+
+    for (const socket of connections.values()) {
+      if (now - (socketData(socket).lastSeenAt ?? 0) >= DEFAULT_HEARTBEAT_TIMEOUT_MS) {
+        leaveSocket(socket);
+        socket.close();
+      }
+    }
+
+    rooms.pruneExpired();
+  }
+
+  return { message, close: leaveSocket, leaveConnection, sweep };
 }

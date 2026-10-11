@@ -29,6 +29,18 @@ export default defineBackground({
 
     const ready = load();
 
+    browser.tabs.onRemoved.addListener(tabId => {
+      void ready.then(() => {
+        if (tabId !== playerTabId) {
+          return;
+        }
+
+        playerTabId = undefined;
+        state = { ...state, playerTabId: undefined };
+        leaveRoom();
+      });
+    });
+
     function savedRole(config: ExtensionConfig): ExtensionState['role'] {
       if (!config.roomCode) {
         return 'none';

@@ -10,6 +10,8 @@ const mocks = vi.hoisted(() => ({
   sendMessage: vi.fn(),
   query: vi.fn(),
   connect: vi.fn(),
+  disconnect: vi.fn(),
+  tabRemoved: vi.fn(),
   windowGet: vi.fn(),
   windowUpdate: vi.fn(),
   tabSend: vi.fn(),
@@ -26,7 +28,12 @@ vi.mock('wxt/browser', () => ({
   browser: {
     storage: { local: { get: mocks.get, set: mocks.set } },
     runtime: { onMessage: { addListener: mocks.addListener }, sendMessage: mocks.sendMessage },
-    tabs: { query: mocks.query, sendMessage: mocks.tabSend, create: mocks.tabCreate },
+    tabs: {
+      query: mocks.query,
+      sendMessage: mocks.tabSend,
+      create: mocks.tabCreate,
+      onRemoved: { addListener: mocks.tabRemoved },
+    },
     windows: { get: mocks.windowGet, update: mocks.windowUpdate },
   },
 }));
@@ -40,7 +47,9 @@ vi.mock('../src/room-client.ts', () => ({
       mocks.connect();
     }
 
-    disconnect() {}
+    disconnect() {
+      mocks.disconnect();
+    }
 
     setPlayerSnapshot(snapshot: unknown) {
       mocks.playerSnapshot(snapshot);
@@ -96,6 +105,22 @@ test('responds with loaded config and retains logs when the popup requests state
     level: 'success',
     message: '服务器和显示名称已保存',
   });
+});
+
+test('closing the bound playback tab leaves the room while closing other tabs does not', async () => {
+  mocks.query.mockResolvedValue([{ id: 7, url: 'https://www.bilibili.com/video/BVtest/' }]);
+  await request({ type: 'bind-player-tab', tabId: 7 });
+  await request({ type: 'join-room', roomCode: 'AAAAAA' });
+  const removed = mocks.tabRemoved.mock.calls[0]![0] as (tabId: number) => void;
+  removed(8);
+  expect((await request({ type: 'get-state' })).state.config.roomCode).toBe('AAAAAA');
+  expect(mocks.disconnect).not.toHaveBeenCalled();
+  removed(7);
+  const result = await request({ type: 'get-state' });
+  expect(mocks.disconnect).toHaveBeenCalledOnce();
+  expect(result.state).toMatchObject({ role: 'none', status: 'idle' });
+  expect(result.state.config.roomCode).toBeUndefined();
+  expect(result.state.playerTabId).toBeUndefined();
 });
 
 test('keeps only the latest 100 events', async () => {

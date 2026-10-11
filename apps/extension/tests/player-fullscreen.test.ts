@@ -4,7 +4,7 @@ import { createPlayerFullscreen } from '../src/player-fullscreen.ts';
 
 afterEach(() => vi.unstubAllGlobals());
 
-function setup(entered = false, active = false) {
+function setup(entered = false) {
   const web = {
     classList: { contains: () => entered },
     click: vi.fn(() => {
@@ -16,77 +16,77 @@ function setup(entered = false, active = false) {
 
   const player = {
     querySelector: (selector: string) => (selector === '.bpx-player-ctrl-web' ? web : native),
-    contains: (element: unknown) => element === player,
+    requestFullscreen: vi.fn(),
   };
 
   const doc = {
     fullscreenElement: null as unknown,
     querySelector: () => player,
-    exitFullscreen: vi.fn(async () => {}),
-    createElement: vi.fn(),
-    body: { style: { overflow: 'auto' } },
+    exitFullscreen: vi.fn(),
   };
 
-  vi.stubGlobal('navigator', { userActivation: { isActive: active } });
+  vi.stubGlobal('navigator', { userActivation: { isActive: true } });
   vi.stubGlobal('document', doc);
 
   return { web, native, player, doc };
 }
 
-test("remote fullscreen uses Bilibili's web control without overriding layout", () => {
-  const { web, native, doc } = setup();
+test('repeated remote controls toggle web fullscreen without invoking native fullscreen', () => {
+  const { web, native, player, doc } = setup();
+  const fullscreen = createPlayerFullscreen();
+  expect(fullscreen()).toBe(true);
+  expect(fullscreen()).toBe(false);
+  expect(fullscreen()).toBe(true);
+  expect(web.click).toHaveBeenCalledTimes(3);
+  expect(native.click).not.toHaveBeenCalled();
+  expect(player.requestFullscreen).not.toHaveBeenCalled();
+  expect(doc.exitFullscreen).not.toHaveBeenCalled();
+});
+
+test('a new remote control re-enters fullscreen after the user exits with the player button', () => {
+  const { web } = setup();
+  const fullscreen = createPlayerFullscreen();
+  fullscreen();
+  web.click();
+  expect(fullscreen()).toBe(true);
+  expect(web.click).toHaveBeenCalledTimes(3);
+  fullscreen(false);
+  expect(web.click).toHaveBeenCalledTimes(4);
+  fullscreen(false);
+  expect(web.click).toHaveBeenCalledTimes(4);
+});
+
+test('explicit entry is idempotent and cleanup does not reopen a manually exited session', () => {
+  const { web } = setup();
   const fullscreen = createPlayerFullscreen();
   fullscreen(true);
   fullscreen(true);
-  expect(web.click).toHaveBeenCalledTimes(1);
-  expect(native.click).not.toHaveBeenCalled();
-  expect(doc.createElement).not.toHaveBeenCalled();
-  expect(doc.body.style.overflow).toBe('auto');
-  // 用户用原有按钮退出后，扩展退出操作不能再次打开网页全屏。
+  expect(web.click).toHaveBeenCalledOnce();
   web.click();
   fullscreen(false);
   expect(web.click).toHaveBeenCalledTimes(2);
 });
 
-test('does not exit a web fullscreen session the user entered', () => {
+test('cleanup preserves user fullscreen while an explicit toggle can exit it', () => {
   const { web } = setup(true);
   const fullscreen = createPlayerFullscreen();
   fullscreen(true);
   fullscreen(false);
   expect(web.click).not.toHaveBeenCalled();
+  expect(fullscreen()).toBe(false);
+  expect(web.click).toHaveBeenCalledOnce();
 });
 
-test('uses the native control with local activation and exits only its own player', () => {
-  const { web, native, doc, player } = setup(false, true);
-  const fullscreen = createPlayerFullscreen();
-  fullscreen(true);
-  expect(native.click).toHaveBeenCalledOnce();
-  expect(web.click).not.toHaveBeenCalled();
+test('does not disturb an existing native fullscreen session', () => {
+  const { web, doc } = setup();
   doc.fullscreenElement = {};
-  fullscreen(false);
-  expect(doc.exitFullscreen).not.toHaveBeenCalled();
-  doc.fullscreenElement = null;
-  fullscreen(true);
-  doc.fullscreenElement = player;
-  fullscreen(false);
-  expect(doc.exitFullscreen).toHaveBeenCalledOnce();
+  expect(createPlayerFullscreen()()).toBe(false);
+  expect(web.click).not.toHaveBeenCalled();
 });
 
-test('a rejected native request cannot reopen fullscreen after exit', async () => {
-  const { player, web } = setup(false, true);
-  player.querySelector = (selector: string) =>
-    selector === '.bpx-player-ctrl-web' ? web : (null as never);
-  let reject!: (reason: Error) => void;
-  Object.assign(player, {
-    requestFullscreen: () =>
-      new Promise<void>((_, fail) => {
-        reject = fail;
-      }),
-  });
-  const fullscreen = createPlayerFullscreen();
-  fullscreen(true);
-  fullscreen(false);
-  reject(new Error('not allowed'));
-  await Promise.resolve();
-  expect(web.click).not.toHaveBeenCalled();
+test('reports a missing web fullscreen button', () => {
+  const { player } = setup();
+  player.querySelector = () => null as never;
+  expect(() => createPlayerFullscreen()(true)).toThrow('未找到播放器的网页全屏按钮');
+  expect(player.requestFullscreen).not.toHaveBeenCalled();
 });

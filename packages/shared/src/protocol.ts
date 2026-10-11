@@ -6,6 +6,7 @@ export const DEFAULT_WEBSITE_PORT = 5173;
 
 export const DEFAULT_SYNC_INTERVAL_MS = 1_000;
 export const DEFAULT_HEARTBEAT_INTERVAL_MS = 15_000;
+export const DEFAULT_HEARTBEAT_TIMEOUT_MS = 90_000;
 export const DEFAULT_ROOM_TTL_MS = 12 * 60 * 60 * 1_000;
 export const SYNC_DRIFT_TOLERANCE_SECONDS = 1.25;
 
@@ -140,7 +141,15 @@ export type ClientMessage = z.infer<typeof clientMessageSchema>;
 export type ClientMessageInput = z.input<typeof clientMessageSchema>;
 
 export type ServerMessage =
-  | { type: 'hello'; payload: { protocolVersion: number; snapshot: RoomSnapshot; you: MemberView } }
+  | {
+      type: 'hello';
+      payload: {
+        protocolVersion: number;
+        snapshot: RoomSnapshot;
+        you: MemberView;
+        connectionToken: string;
+      };
+    }
   | { type: 'snapshot'; payload: RoomSnapshot }
   | { type: 'sync'; payload: RoomSnapshot & { source: SyncSource; originClientId: string } }
   | {
