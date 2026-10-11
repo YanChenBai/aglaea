@@ -15,7 +15,7 @@ services:
       PORT: '${PORT:-8787}'
       HOST: '${HOST:-0.0.0.0}'
       AGLAEA_PUBLIC_URL: '${AGLAEA_PUBLIC_URL:-http://localhost:${AGLAEA_PORT:-8787}}'
-      AGLAEA_WEBSITE_URL: '${AGLAEA_WEBSITE_URL:-http://localhost:${AGLAEA_PORT:-8787}}'
+      AGLAEA_WEB_URL: '${AGLAEA_WEB_URL:-http://localhost:${AGLAEA_PORT:-8787}}'
       AGLAEA_STATIC_ROOT: '${AGLAEA_STATIC_ROOT:-/app/website}'
     healthcheck:
       test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:$${PORT}/health || exit 1']

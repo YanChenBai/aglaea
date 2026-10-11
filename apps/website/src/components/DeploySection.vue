@@ -25,7 +25,7 @@ HOST=0.0.0.0
 AGLAEA_PUBLIC_URL=http://localhost:8787
 
 # 手机遥控地址，请填写手机能访问的域名
-AGLAEA_WEBSITE_URL=http://localhost:8787
+AGLAEA_WEB_URL=http://localhost:8787
 
 # 容器内网页目录，保留 Compose 默认值
 AGLAEA_STATIC_ROOT=/app/website`;

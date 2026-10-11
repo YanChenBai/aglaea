@@ -166,7 +166,7 @@ PowerShell 中可用 `Copy-Item .env.example .env` 创建配置文件。
 | `PORT`               | `8787`                   | 容器内监听端口                       |
 | `AGLAEA_PORT`        | `8787`                   | Compose 映射到宿主机的端口           |
 | `AGLAEA_PUBLIC_URL`  | `http://localhost:8787`  | 启动日志中展示的对外地址             |
-| `AGLAEA_WEBSITE_URL` | `http://localhost:8787`  | 生成遥控链接时使用的前端地址         |
+| `AGLAEA_WEB_URL`     | `http://localhost:8787`  | 生成遥控链接时使用的前端地址         |
 | `AGLAEA_STATIC_ROOT` | `/app/website`（Docker） | 设置后由服务端托管该目录下的静态文件 |
 | `HOST`               | `0.0.0.0`                | 服务端监听地址                       |
 
